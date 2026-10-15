@@ -1,52 +1,1041 @@
-name: Deploy Persona
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b0b0f">
+  <meta name="description" content="Persona — создай свою цифровую визитку.">
+  <title>Persona — Your Identity</title>
 
-on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+  <style>
+    :root {
+      --bg: #0b0b0f;
+      --panel: #121218;
+      --panel2: #191920;
+      --text: #f5f4fa;
+      --muted: #92919f;
+      --accent: #b8a1ff;
+      --border: rgba(255,255,255,.09);
+    }
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+    * {
+      box-sizing: border-box;
+    }
 
-concurrency:
-  group: pages
-  cancel-in-progress: true
+    html {
+      scroll-behavior: smooth;
+    }
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+    }
 
-    steps:
-      - name: Download repository
-        uses: actions/checkout@v4
+    button, input, textarea {
+      font: inherit;
+    }
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
+    button, a {
+      -webkit-tap-highlight-color: transparent;
+    }
 
-      - name: Install dependencies
-        run: npm install
+    button {
+      cursor: pointer;
+    }
 
-      - name: Build website
-        run: npm run build
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
 
-      - name: Upload website
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
+    .container {
+      width: min(1100px, calc(100% - 36px));
+      margin: 0 auto;
+    }
 
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
+    header {
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
 
-    steps:
-      - name: Publish website
-        id: deployment
-        uses: actions/deploy-pages@v4
+    .logo {
+      font-size: 25px;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+    }
+
+    .logo span {
+      color: var(--accent);
+    }
+
+    .header-label {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 1.5px;
+    }
+
+    .hero {
+      padding: 76px 0 55px;
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      align-items: center;
+      gap: 55px;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 11px;
+      letter-spacing: 2px;
+      font-weight: 700;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      font-size: clamp(48px, 7vw, 82px);
+      line-height: .99;
+      letter-spacing: -5px;
+      margin: 0;
+    }
+
+    .gradient {
+      background: linear-gradient(100deg, #c8b7ff, #8cdcff);
+      color: transparent;
+      background-clip: text;
+      -webkit-background-clip: text;
+    }
+
+    .hero-text {
+      max-width: 430px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.8;
+      margin: 24px 0;
+    }
+
+    .button {
+      border: 0;
+      border-radius: 13px;
+      padding: 14px 19px;
+      font-weight: 700;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      transition: transform .2s, opacity .2s;
+    }
+
+    .button:active {
+      transform: scale(.98);
+    }
+
+    .primary {
+      background: var(--accent);
+      color: #15111f;
+    }
+
+    .secondary {
+      background: var(--panel2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .hero-note {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 19px;
+    }
+
+    .hero-note span {
+      color: #9de5bf;
+      margin-right: 7px;
+    }
+
+    .preview-wrap {
+      position: relative;
+      padding: 25px 12px;
+    }
+
+    .glow {
+      position: absolute;
+      width: 250px;
+      height: 250px;
+      background: var(--accent);
+      opacity: .14;
+      filter: blur(90px);
+      border-radius: 50%;
+      top: 15%;
+      left: 20%;
+      pointer-events: none;
+    }
+
+    .profile-card {
+      position: relative;
+      background: linear-gradient(145deg, #1b1b25, #101015);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 26px;
+      padding: 28px;
+      overflow-wrap: anywhere;
+      box-shadow: 0 25px 90px rgba(0,0,0,.28);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+
+    .dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dots i {
+      width: 7px;
+      height: 7px;
+      background: #55535f;
+      border-radius: 50%;
+    }
+
+    .live {
+      color: var(--accent);
+      font-size: 10px;
+      letter-spacing: 1.5px;
+    }
+
+    .avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 23px;
+      background: var(--accent);
+      color: #17131f;
+      display: grid;
+      place-items: center;
+      font-size: 31px;
+      font-weight: 800;
+      margin-bottom: 22px;
+      transition: background .2s;
+    }
+
+    .tag {
+      color: var(--accent);
+      font-size: 10px;
+      letter-spacing: 2px;
+      font-weight: 700;
+    }
+
+    .profile-card h2 {
+      font-size: 32px;
+      letter-spacing: -1.5px;
+      margin: 10px 0 6px;
+      overflow-wrap: anywhere;
+    }
+
+    .profession {
+      color: var(--muted);
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 25px 0;
+    }
+
+    .description {
+      color: #c2c0cc;
+      line-height: 1.8;
+      font-size: 14px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .contact-link {
+      display: inline-flex;
+      margin-top: 14px;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .card-footer {
+      margin-top: 30px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: 1px;
+    }
+
+    .section {
+      padding: 65px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 34px;
+      letter-spacing: -1.5px;
+      margin: 0 0 10px;
+    }
+
+    .section-subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+      margin: 0 0 30px;
+    }
+
+    .editor-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 25px;
+      min-width: 0;
+    }
+
+    .panel-title {
+      font-size: 18px;
+      margin: 0 0 8px;
+    }
+
+    .panel-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin: 0 0 24px;
+    }
+
+    .field {
+      display: block;
+      margin-bottom: 19px;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 650;
+      margin-bottom: 9px;
+    }
+
+    .field input, .field textarea {
+      width: 100%;
+      color: var(--text);
+      background: #0c0c11;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 13px 14px;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .field input:focus, .field textarea:focus {
+      border-color: var(--accent);
+    }
+
+    .field textarea {
+      min-height: 105px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    .field input::placeholder, .field textarea::placeholder {
+      color: #5d5b69;
+    }
+
+    .colors {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .color-button {
+      width: 34px;
+      height: 34px;
+      border: 3px solid transparent;
+      border-radius: 50%;
+      outline: 1px solid transparent;
+      outline-offset: 3px;
+    }
+
+    .color-button.selected {
+      outline-color: #fff;
+    }
+
+    .editor-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .editor-actions .button {
+      flex: 1;
+    }
+
+    .status {
+      min-height: 20px;
+      color: #9de5bf;
+      font-size: 12px;
+      margin-top: 14px;
+      line-height: 1.6;
+    }
+
+    .preview-panel .profile-card {
+      box-shadow: none;
+    }
+
+    .privacy-note {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.7;
+      margin-top: 17px;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 25px 0;
+      color: var(--muted);
+      font-size: 11px;
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+    .public-mode .hero {
+      grid-template-columns: 1fr;
+      max-width: 650px;
+      margin: 0 auto;
+      padding-top: 45px;
+    }
+
+    .public-mode .hero-copy {
+      display: none;
+    }
+
+    .public-mode .preview-wrap {
+      max-width: 540px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .public-mode #editorSection,
+    .public-mode #featuresSection,
+    .public-mode footer,
+    .public-mode .header-label {
+      display: none;
+    }
+
+    .public-mode .public-banner {
+      display: block;
+    }
+
+    .public-banner {
+      display: none;
+      margin: 25px auto 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .public-banner a {
+      display: inline-block;
+      margin-top: 14px;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #e8e1ff;
+      color: #17131f;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      z-index: 5;
+      box-shadow: 0 10px 40px #0008;
+      max-width: calc(100% - 30px);
+      text-align: center;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 760px) {
+      .container {
+        width: min(100% - 30px, 540px);
+      }
+
+      header {
+        height: 65px;
+      }
+
+      .header-label {
+        font-size: 9px;
+        letter-spacing: 1px;
+      }
+
+      .hero {
+        padding: 49px 0 40px;
+        grid-template-columns: 1fr;
+        gap: 25px;
+      }
+
+      h1 {
+        font-size: clamp(50px, 14vw, 70px);
+        letter-spacing: -3.5px;
+      }
+
+      .hero-text {
+        font-size: 14px;
+      }
+
+      .preview-wrap {
+        padding: 10px 0;
+      }
+
+      .profile-card {
+        padding: 23px;
+        border-radius: 22px;
+      }
+
+      .section {
+        padding: 43px 0;
+      }
+
+      .section-title {
+        font-size: 29px;
+      }
+
+      .editor-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        padding: 19px;
+      }
+
+      .editor-actions {
+        flex-direction: column;
+      }
+
+      .editor-actions .button {
+        width: 100%;
+      }
+
+      footer {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="container">
+    <a class="logo" href="#" id="homeLink">persona<span>.</span></a>
+    <span class="header-label">YOUR DIGITAL IDENTITY</span>
+  </header>
+
+  <main>
+    <div class="container hero">
+      <section class="hero-copy">
+        <div class="eyebrow">ONE PAGE. ALL OF YOU.</div>
+        <h1>Интернет.<br><span class="gradient">Это ты.</span></h1>
+        <p class="hero-text">
+          Создай персональную визитку, которая расскажет о тебе.
+          Твой стиль, твои правила, твоя история.
+        </p>
+        <a class="button primary" href="#editorSection">
+          Создать визитку <span>↗</span>
+        </a>
+        <div class="hero-note"><span>●</span> Просто. Стильно. По-твоему.</div>
+      </section>
+
+      <section class="preview-wrap" aria-label="Предпросмотр визитки">
+        <div class="glow"></div>
+        <article class="profile-card">
+          <div class="card-top">
+            <div class="dots"><i></i><i></i><i></i></div>
+            <span class="live">PERSONAL PROFILE</span>
+          </div>
+          <div class="avatar" id="heroAvatar">A</div>
+          <span class="tag">A LITTLE ABOUT ME</span>
+          <h2 id="heroName">Alex Morgan</h2>
+          <p class="profession" id="heroProfession">Designer & Creator</p>
+          <div class="divider"></div>
+          <p class="description" id="heroDescription">
+            Создаю красивые вещи и превращаю идеи в реальные проекты.
+          </p>
+          <a class="contact-link" id="heroContact" href="mailto:hello@example.com">
+            Связаться со мной ↗
+          </a>
+          <div class="card-footer">
+            <span>MADE WITH PERSONA</span>
+            <span>EST. 2026</span>
+          </div>
+        </article>
+      </section>
+    </div>
+
+    <section class="container section" id="editorSection">
+      <div class="eyebrow">MAKE IT YOURS</div>
+      <h2 class="section-title">Твоя визитка.</h2>
+      <p class="section-subtitle">
+        Заполни информацию и сразу увидишь изменения в карточке.
+      </p>
+
+      <div class="editor-layout">
+        <section class="panel">
+          <h3 class="panel-title">Твоя информация</h3>
+          <p class="panel-subtitle">Заполни поля — дизайн обновится автоматически.</p>
+
+          <label class="field">
+            <span class="field-label">Имя</span>
+            <input id="nameInput" maxlength="80" placeholder="Например, Alex Morgan">
+          </label>
+
+          <label class="field">
+            <span class="field-label">Профессия или описание деятельности</span>
+            <input id="professionInput" maxlength="100" placeholder="Дизайнер, разработчик...">
+          </label>
+
+          <label class="field">
+            <span class="field-label">О себе</span>
+            <textarea id="descriptionInput" maxlength="600" placeholder="Расскажи немного о себе..."></textarea>
+          </label>
+
+          <label class="field">
+            <span class="field-label">Электронная почта</span>
+            <input id="emailInput" type="email" maxlength="254" placeholder="you@example.com">
+          </label>
+
+          <div class="field">
+            <span class="field-label">Цвет оформления</span>
+            <div class="colors" id="colorButtons">
+              <button class="color-button selected" type="button" data-color="#b8a1ff" style="background:#b8a1ff" aria-label="Фиолетовый"></button>
+              <button class="color-button" type="button" data-color="#8cdcff" style="background:#8cdcff" aria-label="Голубой"></button>
+              <button class="color-button" type="button" data-color="#9de5bf" style="background:#9de5bf" aria-label="Зелёный"></button>
+              <button class="color-button" type="button" data-color="#ffb4c8" style="background:#ffb4c8" aria-label="Розовый"></button>
+              <button class="color-button" type="button" data-color="#f2d388" style="background:#f2d388" aria-label="Жёлтый"></button>
+            </div>
+          </div>
+
+          <div class="editor-actions">
+            <button class="button primary" type="button" id="saveButton">
+              Сохранить на устройстве
+            </button>
+            <button class="button secondary" type="button" id="shareButton">
+              Создать публичную ссылку ↗
+            </button>
+          </div>
+
+          <div class="status" id="status" role="status"></div>
+
+          <p class="privacy-note">
+            Публичная ссылка содержит информацию из твоей визитки.
+            Не добавляй адрес проживания, личный номер телефона или другие
+            данные, которые не хочешь делать общедоступными.
+          </p>
+        </section>
+
+        <section class="panel preview-panel">
+          <h3 class="panel-title">Предпросмотр</h3>
+          <p class="panel-subtitle">Так будет выглядеть твоя визитка.</p>
+
+          <article class="profile-card">
+            <div class="card-top">
+              <div class="dots"><i></i><i></i><i></i></div>
+              <span class="live">LIVE PREVIEW</span>
+            </div>
+            <div class="avatar" id="editorAvatar">A</div>
+            <span class="tag">A LITTLE ABOUT ME</span>
+            <h2 id="editorName">Alex Morgan</h2>
+            <p class="profession" id="editorProfession">Designer & Creator</p>
+            <div class="divider"></div>
+            <p class="description" id="editorDescription">
+              Создаю красивые вещи и превращаю идеи в реальные проекты.
+            </p>
+            <a class="contact-link" id="editorContact" href="mailto:hello@example.com">
+              Связаться со мной ↗
+            </a>
+            <div class="card-footer">
+              <span>MADE WITH PERSONA</span>
+              <span>EST. 2026</span>
+            </div>
+          </article>
+        </section>
+      </div>
+    </section>
+
+    <section class="container section" id="featuresSection">
+      <div class="eyebrow">WHY PERSONA</div>
+      <h2 class="section-title">Меньше сложностей.<br><span class="gradient">Больше тебя.</span></h2>
+      <p class="section-subtitle">
+        Личная страница, которую можно настроить под себя и отправить друзьям.
+      </p>
+    </section>
+
+    <div class="public-banner container" id="publicBanner">
+      Ты просматриваешь публичную визитку Persona.
+      <br>
+      <a href="#" id="createOwnLink">Создать свою визитку ↗</a>
+    </div>
+  </main>
+
+  <footer class="container">
+    <a class="logo" href="#">persona<span>.</span></a>
+    <span>Твоя личность. Твоё пространство.</span>
+    <span>© 2026 PERSONA</span>
+  </footer>
+
+  <script>
+    const STORAGE_KEY = 'persona-profile-v1';
+
+    const defaultProfile = {
+      name: 'Alex Morgan',
+      profession: 'Designer & Creator',
+      description: 'Создаю красивые вещи и превращаю идеи в реальные проекты.',
+      email: 'hello@example.com',
+      color: '#b8a1ff'
+    };
+
+    const allowedColors = [
+      '#b8a1ff',
+      '#8cdcff',
+      '#9de5bf',
+      '#ffb4c8',
+      '#f2d388'
+    ];
+
+    const fields = {
+      name: document.getElementById('nameInput'),
+      profession: document.getElementById('professionInput'),
+      description: document.getElementById('descriptionInput'),
+      email: document.getElementById('emailInput')
+    };
+
+    let profile = { ...defaultProfile };
+    let isPublicView = false;
+    let saveTimer;
+
+    function encodeProfile(data) {
+      const bytes = new TextEncoder().encode(JSON.stringify(data));
+      let binary = '';
+
+      bytes.forEach(byte => {
+        binary += String.fromCharCode(byte);
+      });
+
+      return btoa(binary)
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/g, '');
+    }
+
+    function decodeProfile(encoded) {
+      const base64 = encoded
+        .replace(/-/g, '+')
+        .replace(/_/g, '/');
+
+      const padded = base64 + '='.repeat((4 - base64.length % 4) % 4);
+      const binary = atob(padded);
+      const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+      const parsed = JSON.parse(new TextDecoder().decode(bytes));
+
+      return {
+        name: typeof parsed.name === 'string' ? parsed.name.slice(0, 80) : defaultProfile.name,
+        profession: typeof parsed.profession === 'string' ? parsed.profession.slice(0, 100) : defaultProfile.profession,
+        description: typeof parsed.description === 'string' ? parsed.description.slice(0, 600) : defaultProfile.description,
+        email: typeof parsed.email === 'string' ? parsed.email.slice(0, 254) : '',
+        color: allowedColors.includes(parsed.color) ? parsed.color : defaultProfile.color
+      };
+    }
+
+    function getProfileFromURL() {
+      const match = location.hash.match(/^#card=(.+)$/);
+
+      if (!match) return null;
+
+      try {
+        return decodeProfile(match[1]);
+      } catch {
+        return null;
+      }
+    }
+
+    function renderCard(prefix, data) {
+      const name = data.name.trim() || 'Твоё имя';
+      const profession = data.profession.trim() || 'Твоя деятельность';
+      const description = data.description.trim() || 'Здесь появится рассказ о тебе.';
+
+      document.getElementById(prefix + 'Avatar').textContent =
+        name.charAt(0).toUpperCase() || '?';
+
+      document.getElementById(prefix + 'Name').textContent = name;
+      document.getElementById(prefix + 'Profession').textContent = profession;
+      document.getElementById(prefix + 'Description').textContent = description;
+
+      const avatar = document.getElementById(prefix + 'Avatar');
+      avatar.style.backgroundColor = data.color;
+      avatar.style.color = '#17131f';
+
+      const tag = document.querySelector(
+        prefix === 'hero' ? '.hero + .unused' : '.unused'
+      );
+
+      const contact = document.getElementById(prefix + 'Contact');
+
+      if (data.email.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim())) {
+        contact.href = 'mailto:' + data.email.trim();
+        contact.hidden = false;
+      } else {
+        contact.removeAttribute('href');
+        contact.hidden = true;
+      }
+
+      const card = avatar.closest('.profile-card');
+      card.style.setProperty('--accent', data.color);
+
+      const live = card.querySelector('.live');
+      live.style.color = data.color;
+
+      card.querySelector('.tag').style.color = data.color;
+      contact.style.color = data.color;
+    }
+
+    function renderAll() {
+      renderCard('hero', profile);
+      renderCard('editor', profile);
+
+      document.documentElement.style.setProperty('--accent', profile.color);
+
+      document.querySelectorAll('.color-button').forEach(button => {
+        button.classList.toggle(
+          'selected',
+          button.dataset.color === profile.color
+        );
+      });
+    }
+
+    function fillForm() {
+      fields.name.value = profile.name;
+      fields.profession.value = profile.profession;
+      fields.description.value = profile.description;
+      fields.email.value = profile.email;
+    }
+
+    function readForm() {
+      profile = {
+        name: fields.name.value.slice(0, 80),
+        profession: fields.profession.value.slice(0, 100),
+        description: fields.description.value.slice(0, 600),
+        email: fields.email.value.slice(0, 254),
+        color: allowedColors.includes(profile.color) ? profile.color : defaultProfile.color
+      };
+
+      renderAll();
+
+      clearTimeout(saveTimer);
+
+      saveTimer = setTimeout(() => {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+          document.getElementById('status').textContent = 'Изменения сохранены на этом устройстве.';
+        } catch {
+          document.getElementById('status').textContent = 'Не удалось сохранить данные в браузере.';
+        }
+      }, 350);
+    }
+
+    function showToast(message) {
+      const oldToast = document.querySelector('.toast');
+      if (oldToast) oldToast.remove();
+
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    async function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+
+      const temporary = document.createElement('textarea');
+      temporary.value = text;
+      temporary.style.position = 'fixed';
+      temporary.style.opacity = '0';
+      document.body.appendChild(temporary);
+      temporary.select();
+
+      const success = document.execCommand('copy');
+      temporary.remove();
+
+      if (!success) throw new Error('Не удалось скопировать ссылку');
+    }
+
+    function enterPublicView(data) {
+      profile = data;
+      isPublicView = true;
+
+      document.body.classList.add('public-mode');
+      document.getElementById('publicBanner').style.display = 'block';
+      document.getElementById('heroCopy');
+      document.getElementById('editorSection').hidden = true;
+
+      document.querySelector('.hero-copy').hidden = true;
+      document.getElementById('featuresSection').hidden = true;
+
+      document.querySelector('.header-label').hidden = true;
+
+      document.querySelector('.hero').style.gridTemplateColumns = '1fr';
+      document.querySelector('.hero').style.maxWidth = '650px';
+      document.querySelector('.hero').style.margin = '0 auto';
+
+      renderAll();
+    }
+
+    function goToCreateMode() {
+      const cleanURL = location.pathname + location.search;
+      history.replaceState(null, '', cleanURL);
+
+      isPublicView = false;
+      document.body.classList.remove('public-mode');
+
+      document.getElementById('editorSection').hidden = false;
+      document.getElementById('featuresSection').hidden = false;
+      document.getElementById('publicBanner').style.display = 'none';
+
+      document.querySelector('.hero-copy').hidden = false;
+      document.querySelector('.header-label').hidden = false;
+
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        profile = saved ? { ...defaultProfile, ...JSON.parse(saved) } : { ...defaultProfile };
+      } catch {
+        profile = { ...defaultProfile };
+      }
+
+      fillForm();
+      renderAll();
+    }
+
+    Object.values(fields).forEach(field => {
+      field.addEventListener('input', readForm);
+    });
+
+    document.getElementById('colorButtons').addEventListener('click', event => {
+      const button = event.target.closest('.color-button');
+
+      if (!button) return;
+
+      profile.color = button.dataset.color;
+      renderAll();
+
+      clearTimeout(saveTimer);
+
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+        document.getElementById('status').textContent = 'Цвет сохранён.';
+      } catch {
+        document.getElementById('status').textContent = 'Не удалось сохранить цвет.';
+      }
+    });
+
+    document.getElementById('saveButton').addEventListener('click', () => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+        document.getElementById('status').textContent = 'Визитка сохранена на этом устройстве.';
+        showToast('Визитка сохранена!');
+      } catch {
+        document.getElementById('status').textContent = 'Не удалось сохранить визитку.';
+      }
+    });
+
+    document.getElementById('shareButton').addEventListener('click', async () => {
+      const encoded = encodeProfile(profile);
+      const shareURL = location.origin + location.pathname + location.search + '#card=' + encoded;
+
+      try {
+        await copyText(shareURL);
+        document.getElementById('status').textContent =
+          'Ссылка скопирована. Открой её в браузере, чтобы проверить визитку.';
+        showToast('Публичная ссылка скопирована!');
+      } catch {
+        window.prompt('Скопируй ссылку на визитку:', shareURL);
+      }
+    });
+
+    document.getElementById('createOwnLink').addEventListener('click', event => {
+      event.preventDefault();
+      goToCreateMode();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    document.getElementById('homeLink').addEventListener('click', event => {
+      if (isPublicView) {
+        event.preventDefault();
+        goToCreateMode();
+      }
+    });
+
+    function init() {
+      const shared = getProfileFromURL();
+
+      if (shared) {
+        enterPublicView(shared);
+        return;
+      }
+
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+
+        if (saved) {
+          const parsed = JSON.parse(saved);
+
+          profile = {
+            name: typeof parsed.name === 'string' ? parsed.name : defaultProfile.name,
+            profession: typeof parsed.profession === 'string' ? parsed.profession : defaultProfile.profession,
+            description: typeof parsed.description === 'string' ? parsed.description : defaultProfile.description,
+            email: typeof parsed.email === 'string' ? parsed.email : defaultProfile.email,
+            color: allowedColors.includes(parsed.color) ? parsed.color : defaultProfile.color
+          };
+        }
+      } catch {
+        profile = { ...defaultProfile };
+      }
+
+      fillForm();
+      renderAll();
+    }
+
+    init();
+  </script>
+</body>
+</html>
